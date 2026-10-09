@@ -1,0 +1,15 @@
+# 용량이 크거나 개인 데이터라서 GitHub에 올리지 않는 것들
+Cellpose_Deploy/
+train_data/
+labels/
+models/
+venv*/
+dist/
+build/
+__pycache__/
+*.pyc
+*.egg
+*.pt
+*.npz
+launcher/*.exe
+error.log
