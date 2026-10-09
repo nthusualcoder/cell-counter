@@ -1,0 +1,6 @@
+# torch / torchvision are installed first by updater.py (cu118 if an NVIDIA GPU is found, otherwise cpu)
+cellpose==4.1.1
+numpy==2.2.6
+scipy==1.15.3
+opencv-python-headless==4.13.0.92
+PySide6-Essentials==6.11.0
