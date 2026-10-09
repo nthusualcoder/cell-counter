@@ -4,6 +4,10 @@
 $ErrorActionPreference = 'Stop'
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 Set-Location (Split-Path $PSScriptRoot -Parent)
+if (-not (Test-Path (Join-Path $PWD '.git'))) {
+    Write-Host '이 폴더는 개발용 git 저장소가 아닙니다. 저장소 폴더(Cellpose)의 publish_update.bat 을 실행하세요.'
+    exit 1
+}
 
 git status --short
 $msg = Read-Host '변경 내용을 한 줄로 입력하세요 (취소: 빈 칸으로 엔터)'

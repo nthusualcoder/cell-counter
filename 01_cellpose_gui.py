@@ -467,8 +467,6 @@ class CellposeGUI(QMainWindow):
         self.label_target_volume = QLabel("만들 최종 부피 (mL):")
 
         form_layout.addRow("탐지된 세포 수 (수정 가능):", self.input_detected_count)
-        form_layout.addRow("카운팅한 대구획 수:", self.input_squares)
-        form_layout.addRow("희석 배수 (Trypan blue):", self.input_dilution)
         form_layout.addRow("현탁액 부피 (pellet + media, mL):", self.input_stock_volume)
         form_layout.addRow(self.label_target_volume, self.input_target_volume)
         form_layout.addRow(self.label_target_type, target_layout)
@@ -477,7 +475,25 @@ class CellposeGUI(QMainWindow):
         self.label_target_volume.hide()
         self.input_target_volume.hide()
 
-        group_settings.setLayout(form_layout)
+        # 추가기능: 대구획 수(기본 1)·희석 배수(기본 2)는 거의 바꾸지 않으므로 버튼을 눌렀을 때만 보임
+        self.btn_advanced = QPushButton()
+        self.btn_advanced.setCheckable(True)
+        self.btn_advanced.toggled.connect(self.on_advanced_toggled)
+        self.advanced_box = QWidget()
+        adv_layout = QFormLayout(self.advanced_box)
+        adv_layout.setContentsMargins(0, 0, 0, 0)
+        adv_layout.addRow("카운팅한 대구획 수:", self.input_squares)
+        adv_layout.addRow("희석 배수 (Trypan blue):", self.input_dilution)
+        self.advanced_box.hide()
+        for w in (self.input_squares, self.input_dilution):
+            w.textChanged.connect(self._update_advanced_button)
+        self._update_advanced_button()
+
+        settings_layout = QVBoxLayout()
+        settings_layout.addLayout(form_layout)
+        settings_layout.addWidget(self.btn_advanced)
+        settings_layout.addWidget(self.advanced_box)
+        group_settings.setLayout(settings_layout)
 
         info_label = QLabel(
             "<b>[사용 안내]</b><br>"
@@ -537,6 +553,19 @@ class CellposeGUI(QMainWindow):
             self.label_target_volume.show()
             self.input_target_volume.show()
         self.update_results_realtime()
+
+    def on_advanced_toggled(self, checked):
+        self.advanced_box.setVisible(checked)
+        self._update_advanced_button()
+
+    def _update_advanced_button(self):
+        """버튼 문구 갱신. 접혀 있어도 기본값(대구획 1, 희석 ×2)과 다르면 알 수 있게 표시"""
+        try:
+            is_default = float(self.input_squares.text()) == 1 and float(self.input_dilution.text()) == 2
+        except ValueError:
+            is_default = False
+        text = "⚙ 추가기능 (대구획 수 · 희석 배수) " + ("▴" if self.btn_advanced.isChecked() else "▾")
+        self.btn_advanced.setText(text if is_default else text + "   ⚠ 기본값과 다름")
 
     def log(self, text, clear=False):
         if clear:
